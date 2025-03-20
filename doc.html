@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird - Gen Z Edition</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Comic Sans MS', cursive, sans-serif;
+            background: linear-gradient(to bottom, #ff4e50, #fc913a);
+            color: white;
+        }
+        h1 {
+            font-size: 36px;
+            text-shadow: 3px 3px 10px black;
+        }
+        p {
+            font-size: 18px;
+        }
+        canvas {
+            background: url('file:///E:/www');
+            display: block;
+            margin: auto;
+            border: 5px solid white;
+            border-radius: 15px;
+            box-shadow: 0px 0px 20px cyan;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔥 Flappy Bird - Gen Z Edition 🔥</h1>
+    <p>🚀 Press <strong>SPACE</strong> to make the bird YEET! 🚀</p>
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
+    
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        let birdImg = new Image();
+        birdImg.src = "file:///E:/hi.png";
+
+        let bird = { x: 50, y: 150, width: 35, height: 35, gravity: 0.6, lift: -6, velocity: 0 };
+        let pipes = [];
+        let frame = 0;
+        let gameOver = false;
+        let score = 0;
+
+        function drawBird() {
+            ctx.drawImage(birdImg, bird.x, bird.y, bird.width, bird.height);
+        }
+
+        function drawPipes() {
+            ctx.fillStyle = "limegreen";
+            pipes.forEach(pipe => {
+                ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+                ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+            });
+        }
+
+        function updatePipes() {
+            if (frame % 90 === 0) {
+                let gap = 120;
+                let top = Math.floor(Math.random() * (canvas.height / 2));
+                pipes.push({ x: canvas.width, width: 50, top: top, bottom: top + gap });
+            }
+            pipes.forEach(pipe => pipe.x -= 3);
+            pipes = pipes.filter(pipe => pipe.x + pipe.width > 0);
+        }
+
+        function checkCollision() {
+            if (bird.y + bird.height >= canvas.height || bird.y <= 0) gameOver = true;
+            pipes.forEach(pipe => {
+                if (
+                    bird.x < pipe.x + pipe.width &&
+                    bird.x + bird.width > pipe.x &&
+                    (bird.y < pipe.top || bird.y + bird.height > pipe.bottom)
+                ) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        function updateGame() {
+            if (gameOver) {
+                ctx.fillStyle = "red";
+                ctx.font = "30px 'Comic Sans MS'";
+                ctx.fillText("💀 Game Over, Bruh 💀", canvas.width / 6, canvas.height / 2);
+                return;
+            }
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBird();
+            drawPipes();
+            bird.velocity += bird.gravity;
+            bird.y += bird.velocity;
+            updatePipes();
+            checkCollision();
+            score++;
+            ctx.fillStyle = "white";
+            ctx.font = "20px 'Comic Sans MS'";
+            ctx.fillText("🔥 Score: " + Math.floor(score / 10) + " 🔥", 10, 20);
+            frame++;
+            requestAnimationFrame(updateGame);
+        }
+
+        function flap() {
+            if (!gameOver) bird.velocity = bird.lift;
+        }
+
+        document.addEventListener("keydown", (event) => {
+            if (event.code === "Space") flap();
+        });
+
+        updateGame();
+    </script>
+</body>
+</html>
